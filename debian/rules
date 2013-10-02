@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+
+PYVERS :=  $(shell pyversions -r)
+
+%:
+	dh $@ --with python2
+
+override_dh_auto_build:
+	set -ex; \
+	for py in $(PYVERS); do \
+		$$py setup.py build; \
+	done
+
+override_dh_auto_install:
+	set -ex; \
+	for py in $(PYVERS); do \
+		$$py setup.py install --skip-build --no-compile \
+		                      --root debian/python-clamd \
+		                      --install-layout=deb; \
+	done
+
+override_dh_auto_clean:
+	rm -rf build 
+	rm -rf clamd.egg-info
+	find . \( -name '*.pyc' -o -name __pycache__ \) -delete
